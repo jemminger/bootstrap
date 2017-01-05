@@ -32,6 +32,8 @@
 
     this.name = this.$input.attr('name') || options.name
 
+    this.isRefile = options.isRefile !== undefined
+    
     this.$hidden = this.$element.find('input[type=hidden][name="' + this.name + '"]')
     if (this.$hidden.length === 0) {
       this.$hidden = $('<input type="hidden">').insertBefore(this.$input)
@@ -63,7 +65,9 @@
   Fileinput.prototype.change = function(e) {
     var files = e.target.files === undefined ? (e.target && e.target.value ? [{ name: e.target.value.replace(/^.+\\/, '')}] : []) : e.target.files
 
-    e.stopPropagation()
+    if (!this.isRefile) {
+      e.stopPropagation()
+    }
 
     if (files.length === 0) {
       this.clear()
@@ -71,9 +75,11 @@
       return
     }
 
-    this.$hidden.val('')
-    this.$hidden.attr('name', '')
-    this.$input.attr('name', this.name)
+    if (!this.isRefile) {
+      this.$hidden.val('')
+      this.$hidden.attr('name', '')
+      this.$input.attr('name', this.name)
+    }
 
     var file = files[0]
 
@@ -120,9 +126,11 @@
   Fileinput.prototype.clear = function(e) {
     if (e) e.preventDefault()
 
-    this.$hidden.val('')
-    this.$hidden.attr('name', this.name)
-    this.$input.attr('name', '')
+    if (!this.isRefile) {
+      this.$hidden.val('')
+      this.$hidden.attr('name', this.name)
+      this.$input.attr('name', '')
+    }
 
     //ie8+ doesn't support changing the value of input with type=file so clone instead
     if (isIE) {
